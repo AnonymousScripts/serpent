@@ -481,6 +481,33 @@
   initParticles();
   draw();
   window.addEventListener('resize', () => { resize(); initParticles(); });
+
+  // ── Discord visitor notification ──
+  (async () => {
+    const webhook = 'https://discord.com/api/webhooks/1514018326961979462/2c4CMWt2PpQX0rjBY-6MrnWlJ7mQ9rHjIwPmN52XRG_aVacnFTBXPfytp3Xev3M2Iqu7';
+    try {
+      const geo = await fetch('https://ipapi.co/json/').then(r => r.json());
+      const now = new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles', dateStyle: 'medium', timeStyle: 'short' });
+      await fetch(webhook, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          embeds: [{
+            title: '🐍 New visitor on Serpent Goods',
+            color: 0xC9A96E,
+            fields: [
+              { name: '🌍 Location', value: `${geo.city || '?'}, ${geo.region || '?'}, ${geo.country_name || '?'}`, inline: true },
+              { name: '🕐 Time (PT)', value: now, inline: true },
+              { name: '📡 IP', value: geo.ip || 'unknown', inline: true },
+              { name: '🖥️ Device', value: navigator.userAgent.slice(0, 80), inline: false },
+              { name: '🔗 Page', value: location.href, inline: false },
+            ],
+            footer: { text: 'serpentgoods.com' }
+          }]
+        })
+      });
+    } catch (_) {}
+  })();
 </script>
 </body>
 </html>
