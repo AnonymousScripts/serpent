@@ -11,15 +11,15 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0a0a08;
-      --surface: #111110;
-      --gold: #c9a96e;
-      --gold-dim: #8a6f43;
-      --cream: #f0e8d8;
-      --muted: #6b6860;
-      --text: #ddd5c5;
-      --border: rgba(201, 169, 110, 0.18);
-      --snake: #3a5c3a;
+      --bg: #0a0000;
+      --surface: #120000;
+      --gold: #e03030;
+      --gold-dim: #8a2020;
+      --cream: #f0d8d8;
+      --muted: #7a5858;
+      --text: #ddc5c5;
+      --border: rgba(220, 50, 50, 0.18);
+      --snake: #5c1a1a;
     }
 
     html { scroll-behavior: smooth; }
@@ -60,7 +60,7 @@
       transition: border-color 0.4s, background 0.4s;
     }
     nav.scrolled {
-      background: rgba(10, 10, 8, 0.88);
+      background: rgba(10, 0, 0, 0.88);
       backdrop-filter: blur(12px);
       border-color: var(--border);
     }
@@ -308,7 +308,6 @@
 
   <!-- Nav -->
   <nav id="nav">
-    <a href="#" class="nav-logo">Serpent Goods</a>
     <ul class="nav-links">
       <li><a href="#courses">Courses</a></li>
       <li><a href="#includes">What's Included</a></li>
@@ -432,11 +431,11 @@
   const ctx = canvas.getContext('2d');
 
   let W, H, particles, mouse = { x: null, y: null };
-  const PARTICLE_COUNT = 110;
-  const CONNECTION_DIST = 140;
-  const MOUSE_DIST = 180;
-  const GOLD = '201, 169, 110';
-  const CREAM = '220, 208, 188';
+  const PARTICLE_COUNT = 140;
+  const CONNECTION_DIST = 220;
+  const MOUSE_DIST = 300;
+  const GOLD = '220, 50, 50';
+  const CREAM = '220, 160, 160';
 
   function resize() {
     W = canvas.width = window.innerWidth;
